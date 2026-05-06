@@ -1489,20 +1489,52 @@ OpenAI Chat: gpt-5.4-nano-2026-03-17
   Keys:
     key: openai
     env_var: OPENAI_API_KEY
-OpenAI Chat: gpt-5.5
+OpenAI Responses: gpt-5.5
   Options:
     temperature: float
+      What sampling temperature to use, between 0 and 2. Higher values like
+      0.8 will make the output more random, while lower values like 0.2 will
+      make it more focused and deterministic.
     max_tokens: int
+      Maximum number of tokens to generate.
     top_p: float
+      An alternative to sampling with temperature, called nucleus sampling,
+      where the model considers the results of the tokens with top_p
+      probability mass. So 0.1 means only the tokens comprising the top 10%
+      probability mass are considered. Recommended to use top_p or
+      temperature but not both.
     frequency_penalty: float
+      Number between -2.0 and 2.0. Positive values penalize new tokens based
+      on their existing frequency in the text so far, decreasing the model's
+      likelihood to repeat the same line verbatim.
     presence_penalty: float
+      Number between -2.0 and 2.0. Positive values penalize new tokens based
+      on whether they appear in the text so far, increasing the model's
+      likelihood to talk about new topics.
     stop: str
+      A string where the API will stop generating further tokens.
     logit_bias: dict, str
+      Modify the likelihood of specified tokens appearing in the completion.
+      Pass a JSON string like '{"1712":-100, "892":-100, "1489":-100}'
     seed: int
+      Integer seed to attempt to sample deterministically
     json_object: boolean
+      Output a valid JSON object {...}. Prompt must mention JSON.
+    chat_completions: boolean
+      Force the use of the older /v1/chat/completions endpoint instead of
+      /v1/responses. Most callers should leave this off; set to true to fall
+      back to the Chat Completions code path for compatibility.
     image_detail: str
+      Controls the detail level for image attachments. Supported values are
+      low, high, original, and auto.
     reasoning_effort: str
+      Constraints effort on reasoning for reasoning models. Currently
+      supported values are low, medium, and high. Reducing reasoning effort
+      can result in faster responses and fewer tokens used on reasoning in a
+      response.
     verbosity: str
+      Controls how verbose the model's response should be. Supported values
+      are low, medium, and high.
   Attachment types:
     application/pdf, image/gif, image/jpeg, image/png, image/webp
   Features:
@@ -1513,7 +1545,7 @@ OpenAI Chat: gpt-5.5
   Keys:
     key: openai
     env_var: OPENAI_API_KEY
-OpenAI Chat: gpt-5.5-2026-04-23
+OpenAI Responses: gpt-5.5-2026-04-23
   Options:
     temperature: float
     max_tokens: int
@@ -1524,6 +1556,7 @@ OpenAI Chat: gpt-5.5-2026-04-23
     logit_bias: dict, str
     seed: int
     json_object: boolean
+    chat_completions: boolean
     image_detail: str
     reasoning_effort: str
     verbosity: str
