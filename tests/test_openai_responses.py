@@ -234,6 +234,90 @@ def test_responses_input_translation():
     }
 
 
+def test_responses_input_translation_assistant_text_uses_easy_input_message():
+    """Plain prior assistant text should match OpenAI's EasyInputMessage shape."""
+    from llm.parts import Message, TextPart
+
+    model = llm.get_model("gpt-5.5")
+
+    class FakePrompt:
+        messages = [
+            Message(role="user", parts=[TextPart(text="hello")]),
+            Message(role="assistant", parts=[TextPart(text="first-ok")]),
+            Message(role="user", parts=[TextPart(text="what next?")]),
+        ]
+
+    items, instructions = model._build_responses_input(FakePrompt())
+
+    assert instructions is None
+    assert items == [
+        {"role": "user", "content": "hello"},
+        {"role": "assistant", "content": "first-ok"},
+        {"role": "user", "content": "what next?"},
+    ]
+
+
+def test_responses_reply_sends_prior_assistant_text_as_string(httpx_mock):
+    """response.reply() should send the same simple history shape a direct
+    openai-python Responses call would use for a text-only assistant turn."""
+
+    def response_json(response_id, message_id, text):
+        return {
+            "id": response_id,
+            "object": "response",
+            "created_at": 1,
+            "model": "gpt-5.5",
+            "output": [
+                {
+                    "type": "message",
+                    "id": message_id,
+                    "role": "assistant",
+                    "status": "completed",
+                    "content": [
+                        {
+                            "type": "output_text",
+                            "text": text,
+                            "annotations": [],
+                        }
+                    ],
+                }
+            ],
+            "usage": {
+                "input_tokens": 5,
+                "output_tokens": 3,
+                "total_tokens": 8,
+            },
+            "status": "completed",
+        }
+
+    httpx_mock.add_response(
+        method="POST",
+        url="https://api.openai.com/v1/responses",
+        json=response_json("resp_1", "msg_1", "first-ok"),
+        headers={"Content-Type": "application/json"},
+    )
+    httpx_mock.add_response(
+        method="POST",
+        url="https://api.openai.com/v1/responses",
+        json=response_json("resp_2", "msg_2", "followup-ok"),
+        headers={"Content-Type": "application/json"},
+    )
+
+    model = llm.get_model("gpt-5.5")
+    first = model.prompt("Say exactly: first-ok", stream=False, key="test")
+    second = first.reply("Say exactly: followup-ok", stream=False, key="test")
+
+    assert first.text() == "first-ok"
+    assert second.text() == "followup-ok"
+    requests = httpx_mock.get_requests()
+    second_body = json.loads(requests[-1].content)
+    assert second_body["input"] == [
+        {"role": "user", "content": "Say exactly: first-ok"},
+        {"role": "assistant", "content": "first-ok"},
+        {"role": "user", "content": "Say exactly: followup-ok"},
+    ]
+
+
 def test_responses_kwargs_packs_reasoning_and_verbosity():
     model = llm.get_model("gpt-5.5")
     options = model.Options(reasoning_effort="low", verbosity="low")

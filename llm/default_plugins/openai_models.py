@@ -1317,17 +1317,7 @@ class _SharedResponses(_Shared):
                     items.append({"role": "user", "content": "".join(text_bits)})
             elif msg.role == "assistant":
                 if text_bits:
-                    items.append(
-                        {
-                            "role": "assistant",
-                            "content": [
-                                {
-                                    "type": "output_text",
-                                    "text": "".join(text_bits),
-                                }
-                            ],
-                        }
-                    )
+                    items.append({"role": "assistant", "content": "".join(text_bits)})
                 items.extend(tool_call_items)
 
         return items, instructions
