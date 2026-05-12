@@ -958,19 +958,49 @@ OpenAI Chat: gpt-4.5-preview (aliases: gpt-4.5)
   Keys:
     key: openai
     env_var: OPENAI_API_KEY
-OpenAI Chat: o1
+OpenAI Responses: o1
   Options:
     temperature: float
+      What sampling temperature to use, between 0 and 2. Higher values like
+      0.8 will make the output more random, while lower values like 0.2 will
+      make it more focused and deterministic.
     max_tokens: int
+      Maximum number of tokens to generate.
     top_p: float
+      An alternative to sampling with temperature, called nucleus sampling,
+      where the model considers the results of the tokens with top_p
+      probability mass. So 0.1 means only the tokens comprising the top 10%
+      probability mass are considered. Recommended to use top_p or
+      temperature but not both.
     frequency_penalty: float
+      Number between -2.0 and 2.0. Positive values penalize new tokens based
+      on their existing frequency in the text so far, decreasing the model's
+      likelihood to repeat the same line verbatim.
     presence_penalty: float
+      Number between -2.0 and 2.0. Positive values penalize new tokens based
+      on whether they appear in the text so far, increasing the model's
+      likelihood to talk about new topics.
     stop: str
+      A string where the API will stop generating further tokens.
     logit_bias: dict, str
+      Modify the likelihood of specified tokens appearing in the completion.
+      Pass a JSON string like '{"1712":-100, "892":-100, "1489":-100}'
     seed: int
+      Integer seed to attempt to sample deterministically
     json_object: boolean
+      Output a valid JSON object {...}. Prompt must mention JSON.
+    chat_completions: boolean
+      Force the use of the older /v1/chat/completions endpoint instead of
+      /v1/responses. Most callers should leave this off; set to true to fall
+      back to the Chat Completions code path for compatibility.
     image_detail: str
+      Controls the detail level for image attachments. Supported values are
+      low, high, and auto.
     reasoning_effort: str
+      Constraints effort on reasoning for reasoning models. Currently
+      supported values are low, medium, and high. Reducing reasoning effort
+      can result in faster responses and fewer tokens used on reasoning in a
+      response.
   Attachment types:
     application/pdf, image/gif, image/jpeg, image/png, image/webp
   Features:
@@ -980,7 +1010,7 @@ OpenAI Chat: o1
   Keys:
     key: openai
     env_var: OPENAI_API_KEY
-OpenAI Chat: o1-2024-12-17
+OpenAI Responses: o1-2024-12-17
   Options:
     temperature: float
     max_tokens: int
@@ -991,6 +1021,7 @@ OpenAI Chat: o1-2024-12-17
     logit_bias: dict, str
     seed: int
     json_object: boolean
+    chat_completions: boolean
     image_detail: str
     reasoning_effort: str
   Attachment types:
@@ -1038,7 +1069,7 @@ OpenAI Chat: o1-mini
   Keys:
     key: openai
     env_var: OPENAI_API_KEY
-OpenAI Chat: o3-mini
+OpenAI Responses: o3-mini
   Options:
     temperature: float
     max_tokens: int
@@ -1049,6 +1080,7 @@ OpenAI Chat: o3-mini
     logit_bias: dict, str
     seed: int
     json_object: boolean
+    chat_completions: boolean
     image_detail: str
     reasoning_effort: str
   Features:
@@ -1059,7 +1091,7 @@ OpenAI Chat: o3-mini
   Keys:
     key: openai
     env_var: OPENAI_API_KEY
-OpenAI Chat: o3
+OpenAI Responses: o3
   Options:
     temperature: float
     max_tokens: int
@@ -1070,29 +1102,7 @@ OpenAI Chat: o3
     logit_bias: dict, str
     seed: int
     json_object: boolean
-    image_detail: str
-    reasoning_effort: str
-  Attachment types:
-    application/pdf, image/gif, image/jpeg, image/png, image/webp
-  Features:
-  - streaming
-  - schemas
-  - tools
-  - async
-  Keys:
-    key: openai
-    env_var: OPENAI_API_KEY
-OpenAI Chat: o4-mini
-  Options:
-    temperature: float
-    max_tokens: int
-    top_p: float
-    frequency_penalty: float
-    presence_penalty: float
-    stop: str
-    logit_bias: dict, str
-    seed: int
-    json_object: boolean
+    chat_completions: boolean
     image_detail: str
     reasoning_effort: str
   Attachment types:
@@ -1105,7 +1115,7 @@ OpenAI Chat: o4-mini
   Keys:
     key: openai
     env_var: OPENAI_API_KEY
-OpenAI Chat: gpt-5
+OpenAI Responses: o4-mini
   Options:
     temperature: float
     max_tokens: int
@@ -1116,6 +1126,31 @@ OpenAI Chat: gpt-5
     logit_bias: dict, str
     seed: int
     json_object: boolean
+    chat_completions: boolean
+    image_detail: str
+    reasoning_effort: str
+  Attachment types:
+    application/pdf, image/gif, image/jpeg, image/png, image/webp
+  Features:
+  - streaming
+  - schemas
+  - tools
+  - async
+  Keys:
+    key: openai
+    env_var: OPENAI_API_KEY
+OpenAI Responses: gpt-5
+  Options:
+    temperature: float
+    max_tokens: int
+    top_p: float
+    frequency_penalty: float
+    presence_penalty: float
+    stop: str
+    logit_bias: dict, str
+    seed: int
+    json_object: boolean
+    chat_completions: boolean
     image_detail: str
     reasoning_effort: str
     verbosity: str
@@ -1129,7 +1164,7 @@ OpenAI Chat: gpt-5
   Keys:
     key: openai
     env_var: OPENAI_API_KEY
-OpenAI Chat: gpt-5-mini
+OpenAI Responses: gpt-5-mini
   Options:
     temperature: float
     max_tokens: int
@@ -1140,6 +1175,7 @@ OpenAI Chat: gpt-5-mini
     logit_bias: dict, str
     seed: int
     json_object: boolean
+    chat_completions: boolean
     image_detail: str
     reasoning_effort: str
     verbosity: str
@@ -1153,7 +1189,7 @@ OpenAI Chat: gpt-5-mini
   Keys:
     key: openai
     env_var: OPENAI_API_KEY
-OpenAI Chat: gpt-5-nano
+OpenAI Responses: gpt-5-nano
   Options:
     temperature: float
     max_tokens: int
@@ -1164,6 +1200,7 @@ OpenAI Chat: gpt-5-nano
     logit_bias: dict, str
     seed: int
     json_object: boolean
+    chat_completions: boolean
     image_detail: str
     reasoning_effort: str
     verbosity: str
@@ -1177,7 +1214,7 @@ OpenAI Chat: gpt-5-nano
   Keys:
     key: openai
     env_var: OPENAI_API_KEY
-OpenAI Chat: gpt-5-2025-08-07
+OpenAI Responses: gpt-5-2025-08-07
   Options:
     temperature: float
     max_tokens: int
@@ -1188,6 +1225,7 @@ OpenAI Chat: gpt-5-2025-08-07
     logit_bias: dict, str
     seed: int
     json_object: boolean
+    chat_completions: boolean
     image_detail: str
     reasoning_effort: str
     verbosity: str
@@ -1201,7 +1239,7 @@ OpenAI Chat: gpt-5-2025-08-07
   Keys:
     key: openai
     env_var: OPENAI_API_KEY
-OpenAI Chat: gpt-5-mini-2025-08-07
+OpenAI Responses: gpt-5-mini-2025-08-07
   Options:
     temperature: float
     max_tokens: int
@@ -1212,6 +1250,7 @@ OpenAI Chat: gpt-5-mini-2025-08-07
     logit_bias: dict, str
     seed: int
     json_object: boolean
+    chat_completions: boolean
     image_detail: str
     reasoning_effort: str
     verbosity: str
@@ -1225,7 +1264,7 @@ OpenAI Chat: gpt-5-mini-2025-08-07
   Keys:
     key: openai
     env_var: OPENAI_API_KEY
-OpenAI Chat: gpt-5-nano-2025-08-07
+OpenAI Responses: gpt-5-nano-2025-08-07
   Options:
     temperature: float
     max_tokens: int
@@ -1236,6 +1275,7 @@ OpenAI Chat: gpt-5-nano-2025-08-07
     logit_bias: dict, str
     seed: int
     json_object: boolean
+    chat_completions: boolean
     image_detail: str
     reasoning_effort: str
     verbosity: str
@@ -1249,7 +1289,7 @@ OpenAI Chat: gpt-5-nano-2025-08-07
   Keys:
     key: openai
     env_var: OPENAI_API_KEY
-OpenAI Chat: gpt-5.1
+OpenAI Responses: gpt-5.1
   Options:
     temperature: float
     max_tokens: int
@@ -1260,6 +1300,7 @@ OpenAI Chat: gpt-5.1
     logit_bias: dict, str
     seed: int
     json_object: boolean
+    chat_completions: boolean
     image_detail: str
     reasoning_effort: str
     verbosity: str
@@ -1273,7 +1314,7 @@ OpenAI Chat: gpt-5.1
   Keys:
     key: openai
     env_var: OPENAI_API_KEY
-OpenAI Chat: gpt-5.1-chat-latest
+OpenAI Responses: gpt-5.1-chat-latest
   Options:
     temperature: float
     max_tokens: int
@@ -1284,6 +1325,7 @@ OpenAI Chat: gpt-5.1-chat-latest
     logit_bias: dict, str
     seed: int
     json_object: boolean
+    chat_completions: boolean
     image_detail: str
     reasoning_effort: str
     verbosity: str
@@ -1297,7 +1339,7 @@ OpenAI Chat: gpt-5.1-chat-latest
   Keys:
     key: openai
     env_var: OPENAI_API_KEY
-OpenAI Chat: gpt-5.2
+OpenAI Responses: gpt-5.2
   Options:
     temperature: float
     max_tokens: int
@@ -1308,6 +1350,7 @@ OpenAI Chat: gpt-5.2
     logit_bias: dict, str
     seed: int
     json_object: boolean
+    chat_completions: boolean
     image_detail: str
     reasoning_effort: str
     verbosity: str
@@ -1321,7 +1364,7 @@ OpenAI Chat: gpt-5.2
   Keys:
     key: openai
     env_var: OPENAI_API_KEY
-OpenAI Chat: gpt-5.2-chat-latest
+OpenAI Responses: gpt-5.2-chat-latest
   Options:
     temperature: float
     max_tokens: int
@@ -1332,6 +1375,7 @@ OpenAI Chat: gpt-5.2-chat-latest
     logit_bias: dict, str
     seed: int
     json_object: boolean
+    chat_completions: boolean
     image_detail: str
     reasoning_effort: str
     verbosity: str
@@ -1345,7 +1389,7 @@ OpenAI Chat: gpt-5.2-chat-latest
   Keys:
     key: openai
     env_var: OPENAI_API_KEY
-OpenAI Chat: gpt-5.4
+OpenAI Responses: gpt-5.4
   Options:
     temperature: float
     max_tokens: int
@@ -1356,6 +1400,7 @@ OpenAI Chat: gpt-5.4
     logit_bias: dict, str
     seed: int
     json_object: boolean
+    chat_completions: boolean
     image_detail: str
     reasoning_effort: str
     verbosity: str
@@ -1369,7 +1414,7 @@ OpenAI Chat: gpt-5.4
   Keys:
     key: openai
     env_var: OPENAI_API_KEY
-OpenAI Chat: gpt-5.4-2026-03-05
+OpenAI Responses: gpt-5.4-2026-03-05
   Options:
     temperature: float
     max_tokens: int
@@ -1380,6 +1425,7 @@ OpenAI Chat: gpt-5.4-2026-03-05
     logit_bias: dict, str
     seed: int
     json_object: boolean
+    chat_completions: boolean
     image_detail: str
     reasoning_effort: str
     verbosity: str
@@ -1393,7 +1439,7 @@ OpenAI Chat: gpt-5.4-2026-03-05
   Keys:
     key: openai
     env_var: OPENAI_API_KEY
-OpenAI Chat: gpt-5.4-mini
+OpenAI Responses: gpt-5.4-mini
   Options:
     temperature: float
     max_tokens: int
@@ -1404,6 +1450,7 @@ OpenAI Chat: gpt-5.4-mini
     logit_bias: dict, str
     seed: int
     json_object: boolean
+    chat_completions: boolean
     image_detail: str
     reasoning_effort: str
     verbosity: str
@@ -1417,7 +1464,7 @@ OpenAI Chat: gpt-5.4-mini
   Keys:
     key: openai
     env_var: OPENAI_API_KEY
-OpenAI Chat: gpt-5.4-mini-2026-03-17
+OpenAI Responses: gpt-5.4-mini-2026-03-17
   Options:
     temperature: float
     max_tokens: int
@@ -1428,6 +1475,7 @@ OpenAI Chat: gpt-5.4-mini-2026-03-17
     logit_bias: dict, str
     seed: int
     json_object: boolean
+    chat_completions: boolean
     image_detail: str
     reasoning_effort: str
     verbosity: str
@@ -1441,7 +1489,7 @@ OpenAI Chat: gpt-5.4-mini-2026-03-17
   Keys:
     key: openai
     env_var: OPENAI_API_KEY
-OpenAI Chat: gpt-5.4-nano
+OpenAI Responses: gpt-5.4-nano
   Options:
     temperature: float
     max_tokens: int
@@ -1452,6 +1500,7 @@ OpenAI Chat: gpt-5.4-nano
     logit_bias: dict, str
     seed: int
     json_object: boolean
+    chat_completions: boolean
     image_detail: str
     reasoning_effort: str
     verbosity: str
@@ -1465,7 +1514,7 @@ OpenAI Chat: gpt-5.4-nano
   Keys:
     key: openai
     env_var: OPENAI_API_KEY
-OpenAI Chat: gpt-5.4-nano-2026-03-17
+OpenAI Responses: gpt-5.4-nano-2026-03-17
   Options:
     temperature: float
     max_tokens: int
@@ -1476,6 +1525,7 @@ OpenAI Chat: gpt-5.4-nano-2026-03-17
     logit_bias: dict, str
     seed: int
     json_object: boolean
+    chat_completions: boolean
     image_detail: str
     reasoning_effort: str
     verbosity: str
@@ -1492,49 +1542,18 @@ OpenAI Chat: gpt-5.4-nano-2026-03-17
 OpenAI Responses: gpt-5.5
   Options:
     temperature: float
-      What sampling temperature to use, between 0 and 2. Higher values like
-      0.8 will make the output more random, while lower values like 0.2 will
-      make it more focused and deterministic.
     max_tokens: int
-      Maximum number of tokens to generate.
     top_p: float
-      An alternative to sampling with temperature, called nucleus sampling,
-      where the model considers the results of the tokens with top_p
-      probability mass. So 0.1 means only the tokens comprising the top 10%
-      probability mass are considered. Recommended to use top_p or
-      temperature but not both.
     frequency_penalty: float
-      Number between -2.0 and 2.0. Positive values penalize new tokens based
-      on their existing frequency in the text so far, decreasing the model's
-      likelihood to repeat the same line verbatim.
     presence_penalty: float
-      Number between -2.0 and 2.0. Positive values penalize new tokens based
-      on whether they appear in the text so far, increasing the model's
-      likelihood to talk about new topics.
     stop: str
-      A string where the API will stop generating further tokens.
     logit_bias: dict, str
-      Modify the likelihood of specified tokens appearing in the completion.
-      Pass a JSON string like '{"1712":-100, "892":-100, "1489":-100}'
     seed: int
-      Integer seed to attempt to sample deterministically
     json_object: boolean
-      Output a valid JSON object {...}. Prompt must mention JSON.
     chat_completions: boolean
-      Force the use of the older /v1/chat/completions endpoint instead of
-      /v1/responses. Most callers should leave this off; set to true to fall
-      back to the Chat Completions code path for compatibility.
     image_detail: str
-      Controls the detail level for image attachments. Supported values are
-      low, high, original, and auto.
     reasoning_effort: str
-      Constraints effort on reasoning for reasoning models. Currently
-      supported values are low, medium, and high. Reducing reasoning effort
-      can result in faster responses and fewer tokens used on reasoning in a
-      response.
     verbosity: str
-      Controls how verbose the model's response should be. Supported values
-      are low, medium, and high.
   Attachment types:
     application/pdf, image/gif, image/jpeg, image/png, image/webp
   Features:
