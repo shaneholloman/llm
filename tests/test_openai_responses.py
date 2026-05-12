@@ -58,7 +58,11 @@ def test_default_routes_to_responses_endpoint(httpx_mock):
                     "role": "assistant",
                     "status": "completed",
                     "content": [
-                        {"type": "output_text", "text": "hi from responses", "annotations": []}
+                        {
+                            "type": "output_text",
+                            "text": "hi from responses",
+                            "annotations": [],
+                        }
                     ],
                 }
             ],
@@ -107,11 +111,7 @@ def test_responses_input_translation():
             ),
             Message(
                 role="tool",
-                parts=[
-                    ToolResultPart(
-                        name="add", output="4", tool_call_id="call_abc"
-                    )
-                ],
+                parts=[ToolResultPart(name="add", output="4", tool_call_id="call_abc")],
             ),
         ]
 
@@ -265,10 +265,7 @@ def test_responses_round_trips_encrypted_reasoning(vcr):
     second_input = (second._prompt_json or {}).get("input") or []
     reasoning_inputs = [it for it in second_input if it.get("type") == "reasoning"]
     assert reasoning_inputs, "second turn must echo a reasoning input item"
-    assert (
-        reasoning_inputs[0]["encrypted_content"]
-        == pm["openai"]["encrypted_content"]
-    )
+    assert reasoning_inputs[0]["encrypted_content"] == pm["openai"]["encrypted_content"]
     assert reasoning_inputs[0]["id"] == pm["openai"]["id"]
 
 
@@ -293,9 +290,7 @@ def test_responses_interleaved_reasoning_between_tool_calls(vcr):
             "start": "Begin with the value 7.",
             "step1_7": "Multiply by 13. Now lookup with key step2_<value>.",
             "step2_91": "Subtract 11. Now lookup with key step3_<value>.",
-            "step3_80": (
-                "The answer is the value modulo 9. State only the integer."
-            ),
+            "step3_80": ("The answer is the value modulo 9. State only the integer."),
         }
         return table.get(key, "unknown key")
 
@@ -319,9 +314,9 @@ def test_responses_interleaved_reasoning_between_tool_calls(vcr):
             raise
 
     responses = chain._responses
-    assert len(responses) >= 3, (
-        f"expected at least 3 chained turns, got {len(responses)}"
-    )
+    assert (
+        len(responses) >= 3
+    ), f"expected at least 3 chained turns, got {len(responses)}"
 
     # 1) Fresh reasoning happens on more than just the first turn. This is
     #    the actual interleaved-reasoning capability, not just round-trip.
@@ -330,8 +325,7 @@ def test_responses_interleaved_reasoning_between_tool_calls(vcr):
         u = r.usage()
         details = (u.details if u else None) or {}
         reasoning_token_counts.append(
-            (details.get("output_tokens_details") or {}).get("reasoning_tokens")
-            or 0
+            (details.get("output_tokens_details") or {}).get("reasoning_tokens") or 0
         )
     turns_with_fresh_reasoning = sum(1 for n in reasoning_token_counts if n > 0)
     assert turns_with_fresh_reasoning >= 2, (
@@ -344,26 +338,21 @@ def test_responses_interleaved_reasoning_between_tool_calls(vcr):
     #    must contain at least N-1 reasoning items.
     for i in range(1, len(responses)):
         outgoing = (responses[i]._prompt_json or {}).get("input") or []
-        reasoning_count = sum(
-            1 for it in outgoing if it.get("type") == "reasoning"
-        )
+        reasoning_count = sum(1 for it in outgoing if it.get("type") == "reasoning")
         # encrypted_content + id are non-empty on each one
         for it in outgoing:
             if it.get("type") == "reasoning":
                 assert it.get("encrypted_content"), "encrypted_content lost"
                 assert it.get("id"), "reasoning id lost"
-        assert reasoning_count >= i, (
-            f"turn {i} must echo >= {i} reasoning items, got {reasoning_count}"
-        )
+        assert (
+            reasoning_count >= i
+        ), f"turn {i} must echo >= {i} reasoning items, got {reasoning_count}"
 
     # 3) The captured ReasoningParts on the assistant messages carry the
     #    opaque metadata that was actually echoed back on the wire.
     for i, r in enumerate(responses[:-1]):
         rparts = [
-            p
-            for m in r.messages()
-            for p in m.parts
-            if isinstance(p, ReasoningPart)
+            p for m in r.messages() for p in m.parts if isinstance(p, ReasoningPart)
         ]
         if reasoning_token_counts[i] > 0:
             assert rparts, (
@@ -372,6 +361,6 @@ def test_responses_interleaved_reasoning_between_tool_calls(vcr):
             )
             for rp in rparts:
                 pm = (rp.provider_metadata or {}).get("openai") or {}
-                assert pm.get("encrypted_content"), (
-                    "ReasoningPart missing encrypted_content"
-                )
+                assert pm.get(
+                    "encrypted_content"
+                ), "ReasoningPart missing encrypted_content"

@@ -1236,9 +1236,7 @@ class _SharedResponses(_Shared):
 
         for msg in prompt.messages:
             if msg.role == "system":
-                text = "".join(
-                    p.text for p in msg.parts if isinstance(p, TextPart)
-                )
+                text = "".join(p.text for p in msg.parts if isinstance(p, TextPart))
                 if text:
                     instructions = text
                 continue
@@ -1569,9 +1567,7 @@ class Responses(_SharedResponses, KeyModel):
                         yield self._reasoning_event(item)
                     elif item.type == "function_call":
                         try:
-                            args = (
-                                json.loads(item.arguments) if item.arguments else {}
-                            )
+                            args = json.loads(item.arguments) if item.arguments else {}
                         except json.JSONDecodeError:
                             args = {"_raw": item.arguments}
                         response.add_tool_call(
@@ -1586,9 +1582,7 @@ class Responses(_SharedResponses, KeyModel):
                     if final_response_dict.get("usage"):
                         usage = final_response_dict["usage"]
             if final_response_dict is not None:
-                response.response_json = remove_dict_none_values(
-                    final_response_dict
-                )
+                response.response_json = remove_dict_none_values(final_response_dict)
         else:
             completion = client.responses.create(
                 model=self.model_name or self.model_id,
@@ -1635,8 +1629,10 @@ class Responses(_SharedResponses, KeyModel):
         # Fallback: usage said reasoning happened but the API gave us no
         # reasoning items to harvest encrypted_content from. Emit the
         # opaque "reasoning happened" marker for UI / token accounting.
-        if not had_reasoning and usage and (
-            (usage.get("output_tokens_details") or {}).get("reasoning_tokens")
+        if (
+            not had_reasoning
+            and usage
+            and ((usage.get("output_tokens_details") or {}).get("reasoning_tokens"))
         ):
             yield StreamEvent(type="reasoning", chunk="", redacted=True)
         response._prompt_json = redact_data(
@@ -1774,9 +1770,7 @@ class AsyncResponses(_SharedResponses, AsyncKeyModel):
                         yield self._reasoning_event(item)
                     elif item.type == "function_call":
                         try:
-                            args = (
-                                json.loads(item.arguments) if item.arguments else {}
-                            )
+                            args = json.loads(item.arguments) if item.arguments else {}
                         except json.JSONDecodeError:
                             args = {"_raw": item.arguments}
                         response.add_tool_call(
@@ -1791,9 +1785,7 @@ class AsyncResponses(_SharedResponses, AsyncKeyModel):
                     if final_response_dict.get("usage"):
                         usage = final_response_dict["usage"]
             if final_response_dict is not None:
-                response.response_json = remove_dict_none_values(
-                    final_response_dict
-                )
+                response.response_json = remove_dict_none_values(final_response_dict)
         else:
             completion = await client.responses.create(
                 model=self.model_name or self.model_id,
@@ -1837,8 +1829,10 @@ class AsyncResponses(_SharedResponses, AsyncKeyModel):
                             yield StreamEvent(type="text", chunk=content.text)
 
         self._set_usage_responses(response, usage)
-        if not had_reasoning and usage and (
-            (usage.get("output_tokens_details") or {}).get("reasoning_tokens")
+        if (
+            not had_reasoning
+            and usage
+            and ((usage.get("output_tokens_details") or {}).get("reasoning_tokens"))
         ):
             yield StreamEvent(type="reasoning", chunk="", redacted=True)
         response._prompt_json = redact_data(
