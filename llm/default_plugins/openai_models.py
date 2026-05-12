@@ -152,7 +152,9 @@ def register_models(register):
     )
     register(
         Responses("o3-mini", reasoning=True, supports_schema=True, supports_tools=True),
-        AsyncResponses("o3-mini", reasoning=True, supports_schema=True, supports_tools=True),
+        AsyncResponses(
+            "o3-mini", reasoning=True, supports_schema=True, supports_tools=True
+        ),
     )
     register(
         Responses(
