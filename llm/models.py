@@ -1154,6 +1154,25 @@ class _BaseResponse:
                     )
                 )
 
+        # Merge in any tool calls registered via add_tool_call() that the
+        # plugin didn't also emit as StreamEvents. Dedup by tool_call_id so
+        # plugins using both APIs in tandem don't double-count.
+        seen_ids = {
+            p.tool_call_id
+            for p in parts
+            if isinstance(p, ToolCallPart) and p.tool_call_id is not None
+        }
+        for tc in self._tool_calls:
+            if tc.tool_call_id is not None and tc.tool_call_id in seen_ids:
+                continue
+            parts.append(
+                ToolCallPart(
+                    name=tc.name,
+                    arguments=tc.arguments or {},
+                    tool_call_id=tc.tool_call_id,
+                )
+            )
+
         # Hoist redacted reasoning Parts to the start of the assembled
         # message. Plugins typically emit them late (when usage arrives
         # in the final chunk), but UIs render reasoning before content,

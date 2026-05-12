@@ -1225,6 +1225,79 @@ class TestSqliteRehydrateMessages:
         assert r3.prompt.messages[2].parts[0].tool_call_id == "c1"
 
 
+class TestAddToolCallWithStreamEvents:
+    """A plugin may yield StreamEvents *and* call response.add_tool_call().
+    The Part list must include the tool call regardless of whether
+    _stream_events is empty or populated; otherwise persistence drops the
+    tool call and the next turn ships an orphan tool_result.
+    """
+
+    def test_text_yield_plus_add_tool_call_emits_both_parts(self, mock_model):
+        class TextAndAddToolCallMock(type(mock_model)):
+            def execute(self, prompt, stream, response, conversation):
+                yield "answer"
+                response.add_tool_call(
+                    llm.ToolCall(
+                        name="search",
+                        arguments={"q": "weather"},
+                        tool_call_id="c1",
+                    )
+                )
+
+        m = TextAndAddToolCallMock()
+        response = m.prompt("hi")
+        response.text()
+        parts = response.messages()[0].parts
+        assert llm.parts.TextPart(text="answer") in parts
+        tool_call_parts = [
+            p for p in parts if isinstance(p, llm.parts.ToolCallPart)
+        ]
+        assert tool_call_parts == [
+            llm.parts.ToolCallPart(
+                name="search",
+                arguments={"q": "weather"},
+                tool_call_id="c1",
+            )
+        ]
+
+    def test_stream_event_tool_call_plus_matching_add_tool_call_dedups(
+        self, mock_model
+    ):
+        class DualApiMock(type(mock_model)):
+            def execute(self, prompt, stream, response, conversation):
+                yield llm.parts.StreamEvent(
+                    type="tool_call_name", chunk="search", tool_call_id="c1"
+                )
+                yield llm.parts.StreamEvent(
+                    type="tool_call_args",
+                    chunk='{"q":"weather"}',
+                    tool_call_id="c1",
+                )
+                response.add_tool_call(
+                    llm.ToolCall(
+                        name="search",
+                        arguments={"q": "weather"},
+                        tool_call_id="c1",
+                    )
+                )
+
+        m = DualApiMock()
+        response = m.prompt("hi")
+        response.text()
+        tool_call_parts = [
+            p
+            for p in response.messages()[0].parts
+            if isinstance(p, llm.parts.ToolCallPart)
+        ]
+        assert tool_call_parts == [
+            llm.parts.ToolCallPart(
+                name="search",
+                arguments={"q": "weather"},
+                tool_call_id="c1",
+            )
+        ]
+
+
 class TestResponseReply:
     def test_reply_builds_next_turn_from_this_response(self, mock_model):
         mock_model.enqueue(["a1"])
