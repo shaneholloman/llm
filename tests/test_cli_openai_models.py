@@ -101,6 +101,9 @@ def test_gpt5_verbosity_option_is_sent_to_openai_chat_completions(httpx_mock):
             "-m",
             "gpt-5",
             "-o",
+            "chat_completions",
+            "1",
+            "-o",
             "verbosity",
             "high",
             "--no-stream",
@@ -114,6 +117,62 @@ def test_gpt5_verbosity_option_is_sent_to_openai_chat_completions(httpx_mock):
     request_body = json.loads(httpx_mock.get_requests()[-1].content)
     assert request_body["verbosity"] == "high"
     assert "text" not in request_body
+
+
+def test_gpt5_verbosity_option_is_sent_to_openai_responses_by_default(httpx_mock):
+    httpx_mock.add_response(
+        method="POST",
+        url="https://api.openai.com/v1/responses",
+        json={
+            "id": "resp_test_1",
+            "object": "response",
+            "created_at": 1,
+            "model": "gpt-5",
+            "output": [
+                {
+                    "type": "message",
+                    "id": "msg_1",
+                    "role": "assistant",
+                    "status": "completed",
+                    "content": [
+                        {
+                            "type": "output_text",
+                            "text": "Verbose enough",
+                            "annotations": [],
+                        }
+                    ],
+                }
+            ],
+            "usage": {
+                "input_tokens": 5,
+                "output_tokens": 3,
+                "total_tokens": 8,
+            },
+            "status": "completed",
+        },
+        headers={"Content-Type": "application/json"},
+    )
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "-m",
+            "gpt-5",
+            "-o",
+            "verbosity",
+            "high",
+            "--no-stream",
+            "--key",
+            "x",
+            "Say hi",
+        ],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    request_body = json.loads(httpx_mock.get_requests()[-1].content)
+    assert request_body["text"]["verbosity"] == "high"
+    assert request_body["include"] == ["reasoning.encrypted_content"]
+    assert "verbosity" not in request_body
 
 
 def test_gpt5_verbosity_option_validates_allowed_values():
@@ -209,6 +268,9 @@ def test_openai_image_detail_original_is_sent_for_gpt54(httpx_mock):
             "-m",
             "gpt-5.4",
             "-o",
+            "chat_completions",
+            "1",
+            "-o",
             "image_detail",
             "original",
             "--at",
@@ -225,6 +287,71 @@ def test_openai_image_detail_original_is_sent_for_gpt54(httpx_mock):
     request_body = json.loads(httpx_mock.get_requests()[-1].content)
     image_part = request_body["messages"][0]["content"][1]
     assert image_part["image_url"]["detail"] == "original"
+
+
+def test_openai_image_detail_original_is_sent_for_gpt54_responses_by_default(
+    httpx_mock,
+):
+    httpx_mock.add_response(
+        method="POST",
+        url="https://api.openai.com/v1/responses",
+        json={
+            "id": "resp_test_1",
+            "object": "response",
+            "created_at": 1,
+            "model": "gpt-5.4",
+            "output": [
+                {
+                    "type": "message",
+                    "id": "msg_1",
+                    "role": "assistant",
+                    "status": "completed",
+                    "content": [
+                        {
+                            "type": "output_text",
+                            "text": "Original detail",
+                            "annotations": [],
+                        }
+                    ],
+                }
+            ],
+            "usage": {
+                "input_tokens": 5,
+                "output_tokens": 3,
+                "total_tokens": 8,
+            },
+            "status": "completed",
+        },
+        headers={"Content-Type": "application/json"},
+    )
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "-m",
+            "gpt-5.4",
+            "-o",
+            "image_detail",
+            "original",
+            "--at",
+            "https://example.com/image.jpg",
+            "image/jpeg",
+            "--no-stream",
+            "--key",
+            "x",
+            "Describe this",
+        ],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    request_body = json.loads(httpx_mock.get_requests()[-1].content)
+    image_part = request_body["input"][0]["content"][1]
+    assert image_part == {
+        "type": "input_image",
+        "image_url": "https://example.com/image.jpg",
+        "detail": "original",
+    }
+    assert "image_detail" not in request_body
 
 
 def test_openai_image_detail_original_is_rejected_for_other_models():

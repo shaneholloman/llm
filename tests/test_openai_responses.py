@@ -81,6 +81,53 @@ def test_default_routes_to_responses_endpoint(httpx_mock):
     # Ensure we sent to the right endpoint
     requests = [r for r in httpx_mock.get_requests()]
     assert any("/v1/responses" in str(r.url) for r in requests)
+    request_body = json.loads(requests[-1].content)
+    assert request_body["include"] == ["reasoning.encrypted_content"]
+
+
+def test_non_reasoning_responses_model_omits_encrypted_reasoning_include(httpx_mock):
+    from llm.default_plugins.openai_models import Responses
+
+    httpx_mock.add_response(
+        method="POST",
+        url="https://api.openai.com/v1/responses",
+        json={
+            "id": "resp_test_1",
+            "object": "response",
+            "created_at": 1,
+            "model": "gpt-4.1",
+            "output": [
+                {
+                    "type": "message",
+                    "id": "msg_1",
+                    "role": "assistant",
+                    "status": "completed",
+                    "content": [
+                        {
+                            "type": "output_text",
+                            "text": "hi from gpt-4.1",
+                            "annotations": [],
+                        }
+                    ],
+                }
+            ],
+            "usage": {
+                "input_tokens": 5,
+                "output_tokens": 3,
+                "total_tokens": 8,
+            },
+            "status": "completed",
+        },
+        headers={"Content-Type": "application/json"},
+    )
+
+    model = Responses("gpt-4.1", vision=True, supports_schema=True, supports_tools=True)
+    response = model.prompt("hello", stream=False, key="test")
+
+    assert response.text() == "hi from gpt-4.1"
+    request_body = json.loads(httpx_mock.get_requests()[-1].content)
+    assert request_body["model"] == "gpt-4.1"
+    assert "include" not in request_body
 
 
 def test_responses_input_translation():

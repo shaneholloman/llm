@@ -124,7 +124,7 @@ def register_models(register):
     # o1
     for model_id in ("o1", "o1-2024-12-17"):
         register(
-            Chat(
+            Responses(
                 model_id,
                 vision=True,
                 can_stream=False,
@@ -132,7 +132,7 @@ def register_models(register):
                 supports_schema=True,
                 supports_tools=True,
             ),
-            AsyncChat(
+            AsyncResponses(
                 model_id,
                 vision=True,
                 can_stream=False,
@@ -151,26 +151,26 @@ def register_models(register):
         AsyncChat("o1-mini", allows_system_prompt=False),
     )
     register(
-        Chat("o3-mini", reasoning=True, supports_schema=True, supports_tools=True),
-        AsyncChat("o3-mini", reasoning=True, supports_schema=True, supports_tools=True),
+        Responses("o3-mini", reasoning=True, supports_schema=True, supports_tools=True),
+        AsyncResponses("o3-mini", reasoning=True, supports_schema=True, supports_tools=True),
     )
     register(
-        Chat(
+        Responses(
             "o3", vision=True, reasoning=True, supports_schema=True, supports_tools=True
         ),
-        AsyncChat(
+        AsyncResponses(
             "o3", vision=True, reasoning=True, supports_schema=True, supports_tools=True
         ),
     )
     register(
-        Chat(
+        Responses(
             "o4-mini",
             vision=True,
             reasoning=True,
             supports_schema=True,
             supports_tools=True,
         ),
-        AsyncChat(
+        AsyncResponses(
             "o4-mini",
             vision=True,
             reasoning=True,
@@ -188,7 +188,7 @@ def register_models(register):
         "gpt-5-nano-2025-08-07",
     ):
         register(
-            Chat(
+            Responses(
                 model_id,
                 vision=True,
                 reasoning=True,
@@ -196,7 +196,7 @@ def register_models(register):
                 supports_schema=True,
                 supports_tools=True,
             ),
-            AsyncChat(
+            AsyncResponses(
                 model_id,
                 vision=True,
                 reasoning=True,
@@ -211,7 +211,7 @@ def register_models(register):
         "gpt-5.1-chat-latest",
     ):
         register(
-            Chat(
+            Responses(
                 model_id,
                 vision=True,
                 reasoning=True,
@@ -219,7 +219,7 @@ def register_models(register):
                 supports_schema=True,
                 supports_tools=True,
             ),
-            AsyncChat(
+            AsyncResponses(
                 model_id,
                 vision=True,
                 reasoning=True,
@@ -231,7 +231,7 @@ def register_models(register):
     # GPT-5.2
     for model_id in ("gpt-5.2", "gpt-5.2-chat-latest"):
         register(
-            Chat(
+            Responses(
                 model_id,
                 vision=True,
                 reasoning=True,
@@ -239,7 +239,7 @@ def register_models(register):
                 supports_schema=True,
                 supports_tools=True,
             ),
-            AsyncChat(
+            AsyncResponses(
                 model_id,
                 vision=True,
                 reasoning=True,
@@ -260,7 +260,7 @@ def register_models(register):
         "gpt-5.4-nano-2026-03-17",
     ):
         register(
-            Chat(
+            Responses(
                 model_id,
                 vision=True,
                 reasoning=True,
@@ -269,7 +269,7 @@ def register_models(register):
                 supports_schema=True,
                 supports_tools=True,
             ),
-            AsyncChat(
+            AsyncResponses(
                 model_id,
                 vision=True,
                 reasoning=True,
@@ -342,6 +342,9 @@ def register_models(register):
         if extra_model.get("completion"):
             klass = Completion
             async_klass = None
+        elif extra_model.get("responses"):
+            klass = Responses
+            async_klass = AsyncResponses
         else:
             klass = Chat
             async_klass = AsyncChat
@@ -1520,7 +1523,8 @@ class Responses(_SharedResponses, KeyModel):
         if instructions is not None:
             kwargs["instructions"] = instructions
         kwargs["store"] = False
-        kwargs["include"] = ["reasoning.encrypted_content"]
+        if self._reasoning:
+            kwargs["include"] = ["reasoning.encrypted_content"]
 
         client = self.get_client(key)
         usage = None
@@ -1723,7 +1727,8 @@ class AsyncResponses(_SharedResponses, AsyncKeyModel):
         if instructions is not None:
             kwargs["instructions"] = instructions
         kwargs["store"] = False
-        kwargs["include"] = ["reasoning.encrypted_content"]
+        if self._reasoning:
+            kwargs["include"] = ["reasoning.encrypted_content"]
 
         client = self.get_client(key, async_=True)
         usage = None
